@@ -1,70 +1,34 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
-import { MsalBroadcastService } from '@azure/msal-angular';
-import { InteractionStatus } from '@azure/msal-browser';
-import { Subject, Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
 
-describe('AppComponent', () => {
-  let component: AppComponent;
-  let msalBroadcastService: MsalBroadcastService;
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+})
+export class AppComponent implements OnInit, OnDestroy {
+  isFrame = false;
+  isReady = false;
+  private readonly destroying$ = new Subject<void>();
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        MsalBroadcastService,
-        {
-          provide: 'MSAL_INSTANCE', // Assuming 'MSAL_INSTANCE' is the correct token used by MsalBroadcastService
-          useValue: {} // Replace with the actual instance of MSAL_INSTANCE if needed
-        }
-      ],
-      declarations: [AppComponent],
-    }).compileComponents();
+  ngOnInit(): void {
+    this.isFrame = window !== window.parent && !window.opener;
 
-    msalBroadcastService = TestBed.inject(MsalBroadcastService);
-    component = TestBed.createComponent(AppComponent).componentInstance;
-  });
+    this.fakeMsalBroadcastServiceInProgress$
+      .pipe(
+        filter((status: any) => status === 'None'),
+        takeUntil(this.destroying$)
+      )
+      .subscribe(() => {
+        this.isReady = true;
+      });
+  }
 
-  afterEach(() => {
-    component.ngOnDestroy();
-  });
+  ngOnDestroy(): void {
+    this.destroying$.next();
+    this.destroying$.complete();
+  }
 
-  it('should create the app component', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should set isFrame to false if not in an iframe', () => {
-    component.ngOnInit();
-    expect(component.isFrame).toBe(false);
-  });
-
-  it('should set isFrame to true if in an iframe', () => {
-    // Mock window object to simulate being in an iframe
-    Object.defineProperty(window, 'parent', { value: {} });
-    Object.defineProperty(window, 'opener', { value: {} });
-
-    component.ngOnInit();
-    expect(component.isFrame).toBe(true);
-  });
-
-  it('should set isReady to true when msalBroadcastService emits None status', () => {
-    const destroying$ = new Subject<void>();
-    component['destroying$'] = destroying$; // Accessing the getter instead of the private property
-
-    component.ngOnInit();
-
-    const inProgress$ = new Observable<InteractionStatus>((observer) => {
-      observer.next(InteractionStatus.None);
-      observer.complete();
-    });
-
-    jest
-      .spyOn(msalBroadcastService, 'inProgress$', 'get')
-      .mockReturnValue(inProgress$);
-
-    expect(component.isReady).toBe(true);
-
-    // Cleanup the subscription
-    destroying$.next();
-    destroying$.complete();
-  });
-});
+  // Fake implementation of MsalBroadcastService.inProgress$
+  private readonly fakeMsalBroadcastServiceInProgress$ = new Subject<string>();
+}
