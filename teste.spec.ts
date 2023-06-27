@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { MsalBroadcastService, InteractionStatus } from '@azure/msal-angular';
+import { MsalBroadcastService } from '@azure/msal-angular';
+import { InteractionStatus } from '@azure/msal-browser';
 import { Subject, Observable } from 'rxjs';
 
 describe('AppComponent', () => {
