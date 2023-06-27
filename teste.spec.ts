@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { MsalBroadcastService, InteractionStatus } from '@azure/msal-angular';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 
 describe('AppComponent', () => {
   let component: AppComponent;
@@ -44,7 +44,15 @@ describe('AppComponent', () => {
     component['destroying$'] = destroying$; // Accessing the getter instead of the private property
 
     component.ngOnInit();
-    msalBroadcastService.inProgress$.next(InteractionStatus.None);
+
+    const inProgress$ = new Observable<InteractionStatus>((observer) => {
+      observer.next(InteractionStatus.None);
+      observer.complete();
+    });
+
+    jest
+      .spyOn(msalBroadcastService, 'inProgress$', 'get')
+      .mockReturnValue(inProgress$);
 
     expect(component.isReady).toBe(true);
 
