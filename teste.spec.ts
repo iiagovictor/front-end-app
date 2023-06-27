@@ -14,6 +14,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isFrame = window !== window.parent && !window.opener;
 
+    // Simulating the behavior of MsalBroadcastService.inProgress$
     this.fakeMsalBroadcastServiceInProgress$
       .pipe(
         filter((status: any) => status === 'None'),
@@ -29,6 +30,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroying$.complete();
   }
 
-  // Fake implementation of MsalBroadcastService.inProgress$
+  // Simulated implementation of MsalBroadcastService.inProgress$
   private readonly fakeMsalBroadcastServiceInProgress$ = new Subject<string>();
+
+  // Methods to trigger fake MsalBroadcastService.inProgress$ changes
+  startFakeMsalInProgress(): void {
+    this.fakeMsalBroadcastServiceInProgress$.next('In Progress');
+  }
+
+  completeFakeMsalInProgress(): void {
+    this.fakeMsalBroadcastServiceInProgress$.next('None');
+  }
 }
