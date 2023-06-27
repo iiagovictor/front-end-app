@@ -41,7 +41,7 @@ describe('AppComponent', () => {
 
   it('should set isReady to true when msalBroadcastService emits None status', () => {
     const destroying$ = new Subject<void>();
-    component['_destroying$'] = destroying$;
+    component['destroying$'] = destroying$; // Accessing the getter instead of the private property
 
     component.ngOnInit();
     msalBroadcastService.inProgress$.next(InteractionStatus.None);
