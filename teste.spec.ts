@@ -1,43 +1,55 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { JobsComponent } from './jobs.component';
+import { JobsService } from './jobs.service';
+import { of, throwError } from 'rxjs';
 
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-})
-export class AppComponent implements OnInit, OnDestroy {
-  isFrame = false;
-  isReady = false;
-  private readonly destroying$ = new Subject<void>();
+describe('JobsComponent', () => {
+  let component: JobsComponent;
+  let fixture: ComponentFixture<JobsComponent>;
+  let jobsService: JobsService;
 
-  ngOnInit(): void {
-    this.isFrame = window !== window.parent && !window.opener;
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [JobsComponent],
+      providers: [JobsService]
+    }).compileComponents();
+  });
 
-    this.msalInProgress$
-      .pipe(
-        filter((status: string) => status === 'None'),
-        takeUntil(this.destroying$)
-      )
-      .subscribe(() => {
-        this.isReady = true;
-      });
-  }
+  beforeEach(() => {
+    fixture = TestBed.createComponent(JobsComponent);
+    component = fixture.componentInstance;
+    jobsService = TestBed.inject(JobsService);
+    spyOn(jobsService, 'getJobs').and.returnValue(of({ jobs: [] }));
+  });
 
-  ngOnDestroy(): void {
-    this.destroying$.next();
-    this.destroying$.complete();
-  }
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
-  // Mock implementation of MsalBroadcastService.inProgress$
-  private readonly msalInProgress$ = new Subject<string>();
+  it('should fetch jobs and update properties', async () => {
+    const jobs = [{ id: 1, title: 'Job 1' }, { id: 2, title: 'Job 2' }];
+    spyOn(jobsService, 'getJobs').and.returnValue(of({ jobs }));
+    spyOn(component, 'createGraphData');
 
-  // Methods to trigger mock MsalBroadcastService.inProgress$ changes
-  triggerMsalInProgress(): void {
-    this.msalInProgress$.next('In Progress');
-  }
+    await component.fetchJob();
 
-  completeMsalInProgress(): void {
-    this.msalInProgress$.next('None');
-  }
-}
+    expect(jobsService.getJobs).toHaveBeenCalled();
+    expect(component.jobs).toEqual(jobs);
+    expect(component.createGraphData).toHaveBeenCalledWith({ jobs });
+    expect(component.errorMsg).toBeUndefined();
+    expect(component.isLoading).toBe(true);
+  });
+
+  it('should handle error during job fetch', async () => {
+    const errorMessage = 'Error fetching jobs';
+    spyOn(jobsService, 'getJobs').and.returnValue(throwError(new Error(errorMessage)));
+
+    await component.fetchJob();
+
+    expect(jobsService.getJobs).toHaveBeenCalled();
+    expect(component.jobs).toEqual([]);
+    expect(component.createGraphData).not.toHaveBeenCalled();
+    expect(component.errorMsg).toBe(`Erro ao recuperar Jobs = ${errorMessage}`);
+    expect(component.isLoading).toBe(true);
+  });
+});
