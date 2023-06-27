@@ -10,7 +10,13 @@ describe('AppComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [MsalBroadcastService],
+      providers: [
+        MsalBroadcastService,
+        {
+          provide: 'MSAL_INSTANCE', // Assuming 'MSAL_INSTANCE' is the correct token used by MsalBroadcastService
+          useValue: {} // Replace with the actual instance of MSAL_INSTANCE if needed
+        }
+      ],
       declarations: [AppComponent],
     }).compileComponents();
 
