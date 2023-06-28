@@ -86,7 +86,8 @@ describe('DagsComponent', () => {
 
   it('should handle missing execPlan parameter', () => {
     const route = TestBed.inject(ActivatedRoute);
-    spyOnProperty(route.snapshot, 'params').and.returnValue({}); // Clear the execPlanId parameter
+    const mockSnapshot = { params: {} };
+    Object.defineProperty(route, 'snapshot', { get: () => mockSnapshot });
 
     spyOn(console, 'error');
 
