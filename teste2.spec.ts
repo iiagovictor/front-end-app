@@ -1,82 +1,71 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { JobsComponent } from './jobs.component';
-import { JobsService } from './jobs.service';
+import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
-describe('JobsComponent', () => {
-  let component: JobsComponent;
-  let fixture: ComponentFixture<JobsComponent>;
-  let jobsService: JobsService;
+import { JobDetailsComponent } from './job-details.component';
+import { JobsDetailsService } from './jobs-details.service';
+
+describe('JobDetailsComponent', () => {
+  let component: JobDetailsComponent;
+  let fixture: ComponentFixture<JobDetailsComponent>;
+  let jobsDetailsService: JobsDetailsService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [JobsComponent],
+      declarations: [JobDetailsComponent],
       imports: [HttpClientTestingModule],
-      providers: [JobsService]
+      providers: [
+        JobsDetailsService,
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { params: { jobName: 'job1' } }
+          }
+        }
+      ]
     }).compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(JobsComponent);
+    fixture = TestBed.createComponent(JobDetailsComponent);
     component = fixture.componentInstance;
-    jobsService = TestBed.inject(JobsService);
+    jobsDetailsService = TestBed.inject(JobsDetailsService);
+    fixture.detectChanges();
   });
 
-  it('should create the component', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch jobs on component initialization', () => {
-    const mockResponse = {
-      jobs: [
-        {
-          "1": "",
-          "4": "",
-          "name": "",
-          "details": ""
-        }
-      ],
-      tables: [
-        {
-          "1": "",
-          "4": "",
-          "name": "",
-          "location_path": "",
-          "layer": "",
-          "trans_operations": "",
-          "database": "",
-          "schema": ""
-        }
-      ],
-      edges: [
-        {
-          "from": "",
-          "to": ""
-        }
-      ]
+  it('should fetch job details on initialization', () => {
+    const jobName = 'job1';
+    const jobDetails = {
+      job_runs: [{ id: 1 }, { id: 2 }],
+      execution_plans: [{ id: 1 }, { id: 2 }]
     };
 
-    jest.spyOn(jobsService, 'getJobs').mockReturnValue(of(mockResponse).toPromise());
+    spyOn(jobsDetailsService, 'getJobDetails').and.returnValue(Promise.resolve(jobDetails));
 
-    fixture.detectChanges();
+    component.ngOnInit();
 
-    expect(component.jobs).toEqual(mockResponse.jobs);
+    expect(jobsDetailsService.getJobDetails).toHaveBeenCalledWith(jobName);
+    expect(component.jobName).toBe(jobName);
+    expect(component.jobRuns).toEqual(jobDetails.job_runs);
+    expect(component.execPlans).toEqual(jobDetails.execution_plans);
     expect(component.graphData).toBeDefined();
     expect(component.errorMsg).toBeUndefined();
-    expect(component.isLoading).toBe(true);
+    expect(component.jobRunsCount).toBe(jobDetails.job_runs.length);
   });
 
-  it('should handle error when fetching jobs', () => {
-    const errorMessage = 'Erro ao recuperar Jobs';
+  it('should handle error when fetching job details', () => {
+    const errorMessage = 'Failed to fetch job details';
 
-    jest.spyOn(jobsService, 'getJobs').mockRejectedValue(new Error(errorMessage));
+    spyOn(jobsDetailsService, 'getJobDetails').and.returnValue(Promise.reject(new Error(errorMessage)));
 
-    fixture.detectChanges();
+    component.ngOnInit();
 
-    expect(component.jobs).toEqual([]);
-    expect(component.graphData).toBeUndefined();
-    expect(component.errorMsg).toEqual(`Erro ao recuperar Jobs = ${errorMessage}`);
-    expect(component.isLoading).toBe(true);
+    expect(jobsDetailsService.getJobDetails).toHaveBeenCalled();
+    expect(component.errorMsg).toBe(`Erro ao recuperar JobRuns - ${errorMessage}`);
   });
 });
