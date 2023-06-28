@@ -83,4 +83,15 @@ describe('DagsComponent', () => {
     expect(component.isLoading).toBe(true);
     expect(component.errorMsg).toBe('Erro ao recuperar JobRuns - API Error');
   });
+
+  it('should handle missing execPlan parameter', () => {
+    const route = TestBed.inject(ActivatedRoute);
+    route.snapshot.params = {}; // Clear the execPlanId parameter
+
+    spyOn(console, 'error');
+
+    fixture.detectChanges();
+
+    expect(console.error).toHaveBeenCalledWith('O parâmetro execPlan é nulo.');
+  });
 });
