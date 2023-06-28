@@ -1,27 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MsalBroadcastService } from '@azure/msal-angular';
-import { InteractionStatus } from '@azure/msal-browser';
-import { of, Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { MsalBroadcastService, InteractionStatus } from '@azure/msal-angular';
+import { Subject } from 'rxjs';
 
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
-  let msalBroadcastService: MsalBroadcastService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [AppComponent],
-      providers: [MsalBroadcastService],
+      providers: [{ provide: MsalBroadcastService, useValue: { inProgress$: new Subject<InteractionStatus>() } }]
     }).compileComponents();
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    msalBroadcastService = TestBed.inject(MsalBroadcastService);
     fixture.detectChanges();
   });
 
@@ -38,10 +34,8 @@ describe('AppComponent', () => {
   });
 
   it('should set isReady to true when msalBroadcastService emits InteractionStatus.None', () => {
-    const inProgressSubject = new Subject<InteractionStatus>();
-    jest
-      .spyOn(msalBroadcastService, 'inProgress$', 'get')
-      .mockReturnValue(inProgressSubject.asObservable());
+    const msalBroadcastService = TestBed.inject(MsalBroadcastService);
+    const inProgressSubject = msalBroadcastService.inProgress$ as Subject<InteractionStatus>;
 
     component.ngOnInit();
     expect(component.isReady).toBe(false);
