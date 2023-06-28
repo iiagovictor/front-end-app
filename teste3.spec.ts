@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DagsComponent } from './dags.component';
 import { DagsService } from './dags.service';
 import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
 
 describe('DagsComponent', () => {
   let component: DagsComponent;
