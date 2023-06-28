@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { JobsComponent } from './jobs.component';
 import { JobsService } from './jobs.service';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 describe('JobsComponent', () => {
   let component: JobsComponent;
@@ -40,7 +40,7 @@ describe('JobsComponent', () => {
       edges: []
     };
 
-    jest.spyOn(jobsService, 'getJobs').mockReturnValue(Promise.resolve(mockResponse));
+    jest.spyOn(jobsService, 'getJobs').mockResolvedValue(mockResponse);
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -54,7 +54,7 @@ describe('JobsComponent', () => {
   it('should handle error when fetching jobs', async () => {
     const errorMessage = 'Erro ao recuperar Jobs';
 
-    jest.spyOn(jobsService, 'getJobs').mockRejectedValue(new Error(errorMessage));
+    jest.spyOn(jobsService, 'getJobs').mockRejectedValue(Promise.reject(errorMessage));
 
     fixture.detectChanges();
     await fixture.whenStable();
