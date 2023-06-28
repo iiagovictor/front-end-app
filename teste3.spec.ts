@@ -86,7 +86,7 @@ describe('DagsComponent', () => {
 
   it('should handle missing execPlan parameter', () => {
     const route = TestBed.inject(ActivatedRoute);
-    jest.spyOnProperty(route.snapshot, 'params', 'get').mockReturnValue({ execPlanId: undefined });
+    spyOnProperty(route.snapshot, 'params', 'get').and.returnValue({ execPlanId: undefined });
 
     spyOn(console, 'error');
 
