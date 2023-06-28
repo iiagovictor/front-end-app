@@ -8,6 +8,7 @@ describe('DagsComponent', () => {
   let component: DagsComponent;
   let fixture: ComponentFixture<DagsComponent>;
   let dagsService: DagsService;
+  let activatedRoute: ActivatedRoute;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -32,6 +33,7 @@ describe('DagsComponent', () => {
     fixture = TestBed.createComponent(DagsComponent);
     component = fixture.componentInstance;
     dagsService = TestBed.inject(DagsService);
+    activatedRoute = TestBed.inject(ActivatedRoute);
   });
 
   it('should create the component', () => {
@@ -59,7 +61,7 @@ describe('DagsComponent', () => {
       ]
     };
 
-    spyOn(dagsService, 'getDags').and.returnValue(Promise.resolve(mockDagResponse));
+    jest.spyOn(dagsService, 'getDags').mockReturnValue(Promise.resolve(mockDagResponse));
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -73,7 +75,7 @@ describe('DagsComponent', () => {
   it('should handle error when fetching DAG', async () => {
     const mockError = new Error('API Error');
 
-    spyOn(dagsService, 'getDags').and.returnValue(Promise.reject(mockError));
+    jest.spyOn(dagsService, 'getDags').mockReturnValue(Promise.reject(mockError));
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -85,8 +87,7 @@ describe('DagsComponent', () => {
   });
 
   it('should handle missing execPlan parameter', () => {
-    const route = TestBed.inject(ActivatedRoute);
-    spyOnProperty(route.snapshot, 'params', 'get').and.returnValue({ execPlanId: undefined });
+    jest.spyOnProperty(activatedRoute.snapshot, 'params', 'get').mockReturnValue({ execPlanId: undefined });
 
     spyOn(console, 'error');
 
