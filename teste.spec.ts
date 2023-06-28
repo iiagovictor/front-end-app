@@ -27,7 +27,7 @@ describe('JobsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch jobs on component initialization', () => {
+  it('should fetch jobs on component initialization', async () => {
     const mockResponse = {
       jobs: [
         {
@@ -40,9 +40,10 @@ describe('JobsComponent', () => {
       edges: []
     };
 
-    jest.spyOn(jobsService, 'getJobs').mockReturnValue(of(mockResponse).toPromise());
+    jest.spyOn(jobsService, 'getJobs').mockReturnValue(Promise.resolve(mockResponse));
 
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(component.jobs).toEqual(mockResponse.jobs);
     expect(component.graphData).toBeDefined();
@@ -50,12 +51,13 @@ describe('JobsComponent', () => {
     expect(component.isLoading).toBe(true);
   });
 
-  it('should handle error when fetching jobs', () => {
+  it('should handle error when fetching jobs', async () => {
     const errorMessage = 'Erro ao recuperar Jobs';
 
     jest.spyOn(jobsService, 'getJobs').mockRejectedValue(new Error(errorMessage));
 
     fixture.detectChanges();
+    await fixture.whenStable();
 
     expect(component.jobs).toEqual([]);
     expect(component.graphData).toBeUndefined();
