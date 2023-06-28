@@ -31,33 +31,16 @@ describe('JobsComponent', () => {
     const mockResponse = {
       jobs: [
         {
-          "1": "",
-          "4": "",
-          "name": "",
-          "details": ""
+          id: 1,
+          name: 'Job 1',
+          details: 'Job details'
         }
       ],
-      tables: [
-        {
-          "1": "",
-          "4": "",
-          "name": "",
-          "location_path": "",
-          "layer": "",
-          "trans_operations": "",
-          "database": "",
-          "schema": ""
-        }
-      ],
-      edges: [
-        {
-          "from": "",
-          "to": ""
-        }
-      ]
+      tables: [],
+      edges: []
     };
 
-    spyOn(jobsService, 'getJobs').and.returnValue(of(mockResponse));
+    jest.spyOn(jobsService, 'getJobs').mockReturnValue(of(mockResponse).toPromise());
 
     fixture.detectChanges();
 
@@ -70,7 +53,7 @@ describe('JobsComponent', () => {
   it('should handle error when fetching jobs', () => {
     const errorMessage = 'Erro ao recuperar Jobs';
 
-    spyOn(jobsService, 'getJobs').and.returnValue(Promise.reject(new Error(errorMessage)));
+    jest.spyOn(jobsService, 'getJobs').mockRejectedValue(new Error(errorMessage));
 
     fixture.detectChanges();
 
