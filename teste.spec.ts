@@ -40,7 +40,7 @@ describe('JobsComponent', () => {
       edges: []
     };
 
-    jest.spyOn(jobsService, 'getJobs').mockReturnValue(Promise.resolve(mockResponse));
+    jest.spyOn(jobsService, 'getJobs').mockResolvedValue(mockResponse);
 
     fixture.detectChanges();
     await fixture.whenStable();
@@ -54,7 +54,7 @@ describe('JobsComponent', () => {
   it('should handle error when fetching jobs', async () => {
     const errorMessage = 'Erro ao recuperar Jobs';
 
-    jest.spyOn(jobsService, 'getJobs').mockReturnValue(throwError(new Error(errorMessage)));
+    jest.spyOn(jobsService, 'getJobs').mockRejectedValue(new Error(errorMessage));
 
     fixture.detectChanges();
     await fixture.whenStable();
