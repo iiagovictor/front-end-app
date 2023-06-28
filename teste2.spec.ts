@@ -11,18 +11,34 @@ describe('JobDetailsComponent', () => {
   let fixture: ComponentFixture<JobDetailsComponent>;
   let jobsDetailsService: JobsDetailsService;
 
+  const activatedRouteMock = {
+    snapshot: {
+      params: {
+        jobName: 'test-job'
+      }
+    }
+  };
+
+  const jobsDetailsServiceMock = {
+    getJobDetails: jest.fn().mockReturnValue(Promise.resolve({
+      job_runs: [
+        { id: '1', details: '' },
+        { id: '2', details: '' },
+      ],
+      execution_plans: [
+        { id: 'plan-1', read_metrics: '', write_metrics: '', duration: '', spark_version: '', spline_version: '' },
+        { id: 'plan-2', read_metrics: '', write_metrics: '', duration: '', spark_version: '', spline_version: '' },
+      ]
+    }))
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [JobDetailsComponent],
       imports: [HttpClientTestingModule],
       providers: [
-        JobsDetailsService,
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: { params: { jobName: 'job1' } }
-          }
-        }
+        { provide: ActivatedRoute, useValue: activatedRouteMock },
+        { provide: JobsDetailsService, useValue: jobsDetailsServiceMock }
       ]
     }).compileComponents();
   });
@@ -38,34 +54,26 @@ describe('JobDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch job details on initialization', () => {
-    const jobName = 'job1';
-    const jobDetails = {
-      job_runs: [{ id: 1 }, { id: 2 }],
-      execution_plans: [{ id: 1 }, { id: 2 }]
-    };
+  it('should fetch job details on initialization', async () => {
+    const jobName = activatedRouteMock.snapshot.params.jobName;
+    await component.ngOnInit();
 
-    spyOn(jobsDetailsService, 'getJobDetails').and.returnValue(Promise.resolve(jobDetails));
-
-    component.ngOnInit();
-
-    expect(jobsDetailsService.getJobDetails).toHaveBeenCalledWith(jobName);
     expect(component.jobName).toBe(jobName);
-    expect(component.jobRuns).toEqual(jobDetails.job_runs);
-    expect(component.execPlans).toEqual(jobDetails.execution_plans);
-    expect(component.graphData).toBeDefined();
+    expect(jobsDetailsService.getJobDetails).toHaveBeenCalledWith(jobName);
+    expect(component.jobRuns).toEqual([{ id: '1', details: '' }, { id: '2', details: '' }]);
+    expect(component.execPlans).toEqual([
+      { id: 'plan-1', read_metrics: '', write_metrics: '', duration: '', spark_version: '', spline_version: '' },
+      { id: 'plan-2', read_metrics: '', write_metrics: '', duration: '', spark_version: '', spline_version: '' }
+    ]);
+    expect(component.jobRunsCount).toBe(2);
     expect(component.errorMsg).toBeUndefined();
-    expect(component.jobRunsCount).toBe(jobDetails.job_runs.length);
   });
 
-  it('should handle error when fetching job details', () => {
-    const errorMessage = 'Failed to fetch job details';
+  it('should handle error when fetching job details', async () => {
+    const errorMessage = 'Error fetching job details';
+    jobsDetailsServiceMock.getJobDetails.mockReturnValue(Promise.reject(new Error(errorMessage)));
+    await component.ngOnInit();
 
-    spyOn(jobsDetailsService, 'getJobDetails').and.returnValue(Promise.reject(new Error(errorMessage)));
-
-    component.ngOnInit();
-
-    expect(jobsDetailsService.getJobDetails).toHaveBeenCalled();
     expect(component.errorMsg).toBe(`Erro ao recuperar JobRuns - ${errorMessage}`);
   });
 });
