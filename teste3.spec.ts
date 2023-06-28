@@ -1,52 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DagsComponent } from './dags.component';
+import { DagsService } from './dags.service';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
-import { DagsService } from './dags.service';
-import { JobDetailsComponent } from './dags.component';
 
-describe('JobDetailsComponent', () => {
-  let component: JobDetailsComponent;
-  let fixture: ComponentFixture<JobDetailsComponent>;
+describe('DagsComponent', () => {
+  let component: DagsComponent;
+  let fixture: ComponentFixture<DagsComponent>;
   let dagsService: DagsService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [JobDetailsComponent],
+      declarations: [DagsComponent],
       providers: [
+        DagsService,
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
               params: {
-                execPlanId: '123'
+                execPlanId: '12345'
               }
             }
-          }
-        },
-        {
-          provide: DagsService,
-          useValue: {
-            getDags: jest.fn(() =>
-              Promise.resolve({
-                nodes: [
-                  {
-                    '1': '',
-                    '4': '',
-                    name: '',
-                    schema: '',
-                    param: '',
-                    type: '',
-                    level: ''
-                  }
-                ],
-                edges: [
-                  {
-                    from: '',
-                    to: ''
-                  }
-                ]
-              })
-            )
           }
         }
       ]
@@ -54,52 +29,58 @@ describe('JobDetailsComponent', () => {
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(JobDetailsComponent);
+    fixture = TestBed.createComponent(DagsComponent);
     component = fixture.componentInstance;
     dagsService = TestBed.inject(DagsService);
   });
 
-  it('should create', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch dag and set graphData', async () => {
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    expect(dagsService.getDags).toHaveBeenCalledWith('123');
-    expect(component.isLoading).toBe(true);
-    expect(component.graphData).toEqual({
+  it('should fetch DAG and set graph data on initialization', async () => {
+    const mockDagResponse = {
       nodes: [
         {
-          '1': '',
-          '4': '',
-          name: '',
-          schema: '',
-          param: '',
-          type: '',
-          level: ''
+          "1": "",
+          "4": "",
+          "name": "",
+          "schema": "",
+          "param": "",
+          "type": "",
+          "level": ""
         }
       ],
       edges: [
         {
-          from: '',
-          to: ''
+          "from": "",
+          "to": ""
         }
       ]
-    });
+    };
+
+    spyOn(dagsService, 'getDags').and.returnValue(Promise.resolve(mockDagResponse));
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(dagsService.getDags).toHaveBeenCalledWith('12345');
+    expect(component.graphData).toEqual(mockDagResponse);
+    expect(component.isLoading).toBe(true);
     expect(component.errorMsg).toBeUndefined();
   });
 
-  it('should handle error when fetching dag', async () => {
-    const error = new Error('Error message');
-    (dagsService.getDags as jest.Mock).mockRejectedValueOnce(error);
+  it('should handle error when fetching DAG', async () => {
+    const mockError = new Error('API Error');
 
-    await fixture.whenStable();
+    spyOn(dagsService, 'getDags').and.returnValue(Promise.reject(mockError));
+
     fixture.detectChanges();
+    await fixture.whenStable();
 
-    expect(component.isLoading).toBe(true);
+    expect(dagsService.getDags).toHaveBeenCalledWith('12345');
     expect(component.graphData).toBeUndefined();
-    expect(component.errorMsg).toBe('Erro ao recuperar JobRuns - Error message');
+    expect(component.isLoading).toBe(true);
+    expect(component.errorMsg).toBe('Erro ao recuperar JobRuns - API Error');
   });
 });
