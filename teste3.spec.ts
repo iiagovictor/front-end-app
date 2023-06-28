@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DagsComponent } from './dags.component';
 import { DagsService } from './dags.service';
 import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('DagsComponent', () => {
   let component: DagsComponent;
@@ -85,7 +86,7 @@ describe('DagsComponent', () => {
 
   it('should handle missing execPlan parameter', () => {
     const route = TestBed.inject(ActivatedRoute);
-    route.snapshot.params = {}; // Clear the execPlanId parameter
+    spyOnProperty(route, 'snapshot').and.returnValue({ params: {} });
 
     spyOn(console, 'error');
 
