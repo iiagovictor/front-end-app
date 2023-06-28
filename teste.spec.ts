@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { JobsComponent } from './jobs.component';
 import { JobsService } from './jobs.service';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 describe('JobsComponent', () => {
   let component: JobsComponent;
@@ -40,7 +40,7 @@ describe('JobsComponent', () => {
       edges: []
     };
 
-    jest.spyOn(jobsService, 'getJobs').mockResolvedValue(mockResponse);
+    jest.spyOn(jobsService, 'getJobs').mockReturnValue(Promise.resolve(mockResponse));
 
     fixture.detectChanges();
     await fixture.whenStable();
