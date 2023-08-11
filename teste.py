@@ -26,3 +26,9 @@ for state_machine in state_machines['stateMachines']:
         print(f"Última Execução: {last_execution['executionArn']} - Data: {last_execution_date} - Status: {last_execution['status']}")
     else:
         print("Sem execuções recentes.")
+
+import re
+
+def validate_lup(s):
+    pattern = r'^[a-z]{2}\d{4}$'
+    return bool(re.match(pattern, s))
