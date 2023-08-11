@@ -1,26 +1,25 @@
-import re
+import boto3
 
-def extract_databases_and_tables(query):
-    pattern = r'(?:FROM|INTO|UPDATE|JOIN)\s+([^\s.]+)(?:\.[^\s.]+)?\.([^\s.;]+)'
-    matches = re.findall(pattern, query)
-    
-    results = []
-    for match in matches:
-        database, table = match
-        results.append((database, table))
-    
-    return results
+# Crie um cliente para o Step Functions
+sfn_client = boto3.client('stepfunctions')
 
-# Exemplo de uso
-query = """SELECT * FROM my_database.my_schema.my_table 
-           JOIN another_database.another_schema.another_table 
-           ON my_table.id = another_table.id WHERE my_table.id = 5;"""
+# Liste as state machines
+state_machines = sfn_client.list_state_machines()
 
-tables = extract_databases_and_tables(query)
+# Itere sobre as state machines e obtenha a última execução
+for state_machine in state_machines['stateMachines']:
+    state_machine_arn = state_machine['stateMachineArn']
+    print(f"State Machine ARN: {state_machine_arn}")
 
-if tables:
-    for database, table in tables:
-        print(f"Database: {database}")
-        print(f"Table: {table}")
-else:
-    print("Databases and tables not found in the query.")
+    # Liste as execuções para esta state machine
+    executions = sfn_client.list_executions(
+        stateMachineArn=state_machine_arn,
+        statusFilter='RUNNING'
+    )
+
+    # Se houver execuções, obtenha a mais recente
+    if executions['executions']:
+        last_execution = executions['executions'][0]
+        print(f"Última Execução: {last_execution['executionArn']} - Status: {last_execution['status']}")
+    else:
+        print("Sem execuções recentes.")
