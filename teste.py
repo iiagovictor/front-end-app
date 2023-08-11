@@ -20,6 +20,7 @@ for state_machine in state_machines['stateMachines']:
     # Se houver execuções, obtenha a mais recente
     if executions['executions']:
         last_execution = executions['executions'][0]
-        print(f"Última Execução: {last_execution['executionArn']} - Status: {last_execution['status']}")
+        last_execution_date = last_execution['startDate']
+        print(f"Última Execução: {last_execution['executionArn']} - Data: {last_execution_date} - Status: {last_execution['status']}")
     else:
         print("Sem execuções recentes.")
