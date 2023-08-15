@@ -1,7 +1,12 @@
+import boto3
 import sys
-from awsglue.utils import getResolvedOptions
 
-args = getResolvedOptions(sys.argv, ['errorPayload'])
+# Baixar common_functions.py do S3
+s3_resource = boto3.resource('s3')
+s3_resource.Bucket('your-bucket-name').download_file('path/to/common_functions.py', '/tmp/common_functions.py')
 
-error_payload = args['errorPayload']
-print("Payload de erro recebido:", error_payload)
+# Importando funções do arquivo common_functions.py
+sys.path.append('/tmp')
+import common_functions as cf
+
+# Continuação do seu código...
