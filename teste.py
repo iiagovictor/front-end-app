@@ -1,7 +1,7 @@
 import boto3
 import time
 
-def run_athena_query_and_get_dict_list(query, database, s3_output):
+def run_athena_query_and_get_dict_list(query, database, s3_output, workgroup='primary'):
     """
     Executa uma consulta no Athena e retorna os resultados em uma lista de dicionários.
     
@@ -9,6 +9,7 @@ def run_athena_query_and_get_dict_list(query, database, s3_output):
     - query: A consulta SQL que você deseja executar.
     - database: O nome do banco de dados Athena.
     - s3_output: O local do S3 onde os resultados da consulta serão salvos.
+    - workgroup: O nome do workgroup do Athena a ser usado (padrão é 'primary').
     """
     client = boto3.client('athena')
     
@@ -19,7 +20,8 @@ def run_athena_query_and_get_dict_list(query, database, s3_output):
         },
         ResultConfiguration={
             'OutputLocation': s3_output,
-        }
+        },
+        WorkGroup=workgroup  # Especificando o workgroup
     )
     
     query_execution_id = response['QueryExecutionId']
@@ -52,6 +54,7 @@ def run_athena_query_and_get_dict_list(query, database, s3_output):
 query = "SELECT nome_recurso, servico FROM minha_tabela LIMIT 10;"
 database = "meu_banco_de_dados"
 s3_output = "s3://meu-bucket/caminho/para/saida/"
-results_list, results_len = run_athena_query_and_get_dict_list(query, database, s3_output)
+workgroup_name = "meu_workgroup"
+results_list, results_len = run_athena_query_and_get_dict_list(query, database, s3_output, workgroup_name)
 print(results_list)
 print("Número de itens:", results_len)
