@@ -30,7 +30,8 @@ def get_tables_from_queries(workgroups):
     query_count = 0
     
     # Expressão regular para capturar "datasource", "database" e "tabela" ou apenas "database" e "tabela"
-    pattern = re.compile(r'(?i)(?:from|join|union)[\s\n]+(?:\"([a-zA-Z0-9_]+)\"\.)?\"([a-zA-Z0-9_]+)\"\.\"([\s\n]*[a-zA-Z0-9_]+)\"')
+    pattern = re.compile(r'(?i)(?:from|join|union)[\s\n]+(?:\"?([a-zA-Z0-9_]+)\"?\.)?\"?([a-zA-Z0-9_]+)\"?\.\"?([\s\n]*[a-zA-Z0-9_]+)\"?
+')
     
     for workgroup in workgroups:
         next_token = None
