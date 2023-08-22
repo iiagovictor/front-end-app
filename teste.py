@@ -12,9 +12,9 @@ def list_available_workgroups():
         workgroups.append(workgroup['Name'])
     return workgroups
 
-def get_s3_path(datasource, database, table):
+def get_s3_path(database, table):
     client = boto3.client('glue')
-    response = client.get_table(CatalogId=datasource, DatabaseName=database, Name=table)
+    response = client.get_table(DatabaseName=database, Name=table)
     s3_path = response['Table']['StorageDescriptor']['Location']
     return s3_path
 
@@ -29,8 +29,8 @@ def get_tables_from_queries(workgroups):
     tables_set = set()
     query_count = 0
     
-    # Expressão regular atualizada para capturar "datasource", "database" e "tabela"
-    pattern = re.compile(r'(?i)(?:from|join|union)[\s\n]+\"([a-zA-Z0-9_]+)\"\.\"([a-zA-Z0-9_]+)\"\.\"([\s\n]*[a-zA-Z0-9_]+)\"')
+    # Expressão regular para capturar "datasource", "database" e "tabela" ou apenas "database" e "tabela"
+    pattern = re.compile(r'(?i)(?:from|join|union)[\s\n]+(?:\"([a-zA-Z0-9_]+)\"\.)?\"([a-zA-Z0-9_]+)\"\.\"([\s\n]*[a-zA-Z0-9_]+)\"')
     
     for workgroup in workgroups:
         next_token = None
@@ -57,8 +57,10 @@ def get_tables_from_queries(workgroups):
                 matches = pattern.findall(sql)
                 for match in matches:
                     datasource, database, table = match
-                    s3_path = get_s3_path(datasource, database, table)
-                    table_dict = {'datasource': datasource, 'database': database, 'table': table, 's3_path': s3_path}
+                    if not datasource:  # Se não houver datasource, então database e table são reatribuídos
+                        database, table = database, table
+                    s3_path = get_s3_path(database, table)
+                    table_dict = {'database': database, 'table': table, 's3_path': s3_path}
                     tables_set.add(json.dumps(table_dict))
             
             next_token = response.get('NextToken')
