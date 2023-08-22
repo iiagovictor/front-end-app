@@ -1,1 +1,14 @@
-pattern = re.compile(r'(?i)(?:from|join|union)[\s\n]+\"([a-zA-Z0-9_]+)\"\.\"([\s\n]*[a-zA-Z0-9_]+)\"')
+def list_available_workgroups():
+    # Criar um cliente para o Athena
+    client = boto3.client('athena')
+    
+    # Lista para armazenar os workgroups
+    workgroups = []
+    
+    # Obter a lista de workgroups
+    response = client.list_work_groups()
+    
+    for workgroup in response['WorkGroups']:
+        workgroups.append(workgroup['Name'])
+    
+    return workgroups
