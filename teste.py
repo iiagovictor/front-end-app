@@ -1,33 +1,31 @@
- Carregar o JSON
-data = json.loads(json_data)
+def remove_partitions_from_s3_path(s3_path):
+    # Divide o caminho S3 em partes usando '/'
+    parts = s3_path.split('/')
 
-# Função para percorrer o plano lógico e extrair informações
-def extract_lineage(node, lineage=None):
-    if lineage is None:
-        lineage = []
+    # Inicializa uma lista para armazenar partes não relacionadas à partição
+    new_parts = []
 
-    if "name" in node and "outputs" in node:
-        operation_name = node["name"]
-        outputs = node["outputs"]
-        lineage.append({"operation": operation_name, "outputs": outputs})
+    for part in parts:
+        # Verifica se a parte contém o caractere '=' (indicando uma partição)
+        if '=' in part:
+            break  # Se encontrar uma partição, para de adicionar partes
+        new_parts.append(part)
 
-    if "children" in node:
-        for child in node["children"]:
-            extract_lineage(child, lineage)
+    # Recria o caminho S3 usando as partes não relacionadas à partição
+    new_s3_path = '/'.join(new_parts)
 
-    return lineage
+    # Adiciona 's3://' de volta ao caminho, pois foi removido durante a divisão
+    return 's3://' + new_s3_path
 
-# Percorrer os fragmentos e extrair o lineage
-lineage_data = []
-for fragment in data["fragments"]:
-    logical_plan = fragment["logicalPlan"]
-    lineage = extract_lineage(logical_plan)
-    lineage_data.append({"id": fragment["id"], "lineage": lineage})
+# Exemplos de uso:
+s3_path1 = "s3://bucket/path1/path2/ano=2023/mes=09/dia=01"
+s3_path2 = "s3://bucket/path1/ano=2023/mes=09/dia=01"
+s3_path3 = "s3://bucket/path1/path2/ano_dt=2023/mes_dt=09/dia_dt=01"
 
-# Imprimir o resultado
-for item in lineage_data:
-    print(f"Fragment ID: {item['id']}")
-    for operation in item["lineage"]:
-        print(f"Operation: {operation['operation']}")
-        print(f"Outputs: {', '.join(operation['outputs'])}")
-    print()
+new_path1 = remove_partitions_from_s3_path(s3_path1)
+new_path2 = remove_partitions_from_s3_path(s3_path2)
+new_path3 = remove_partitions_from_s3_path(s3_path3)
+
+print(new_path1)  # Deve retornar "s3://bucket/path1/path2"
+print(new_path2)  # Deve retornar "s3://bucket/path1"
+print(new_path3)  # Deve retornar "s3://bucket/path1/path2"
