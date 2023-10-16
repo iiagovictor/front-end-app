@@ -1,22 +1,20 @@
 import boto3
 
-# Nome da função Lambda e o nome da variável de ambiente a ser atualizada
-function_name = 'sua-funcao-lambda'
-variable_name = 'NOME_DA_VARIAVEL_AMBIENTE'
-new_value = 'NOVO_VALOR'
+# Substitua 'your_region' pelo nome da sua região AWS (por exemplo, 'us-east-1' para a região Leste dos EUA).
+region = 'your_region'
 
-# Inicialize o cliente do AWS Lambda
-lambda_client = boto3.client('lambda')
+# Substitua 'your_neptune_cluster_identifier' pelo identificador do seu cluster Neptune.
+cluster_identifier = 'your_neptune_cluster_identifier'
 
-# Recupere a configuração atual da função Lambda
-response = lambda_client.get_function_configuration(FunctionName=function_name)
-current_environment = response['Environment']['Variables']
+# Crie uma sessão do cliente para o Amazon Neptune
+session = boto3.Session(region_name=region)
+neptune_client = session.client('neptune')
 
-# Atualize a variável de ambiente com o novo valor
-current_environment[variable_name] = new_value
+# Use o método describe_db_clusters para obter informações sobre o cluster
+response = neptune_client.describe_db_clusters(DBClusterIdentifier=cluster_identifier)
 
-# Atualize a configuração da função Lambda com a nova variável de ambiente
-lambda_client.update_function_configuration(
-    FunctionName=function_name,
-    Environment={'Variables': current_environment}
-)
+# Verifique o status do cluster
+cluster = response['DBClusters'][0]
+cluster_status = cluster['Status']
+
+print(f'O status do cluster {cluster_identifier} é: {cluster_status}')
