@@ -24,14 +24,23 @@ for att in attributes:
     data_type = None
 
     for d in dataTypes:
-        if d["id"] == att["dataTypeId"]:
+        if d["id"] == att["dataType"]:
             data_type = d.get("name", None)
             break
 
     if data_type is None:
-        raise Exception(f"DataType not found for attribute {att['dataTypeId']}")
+        raise Exception(f"DataType not found for attribute {att['dataType']}")
 
     columns[att["id"]] = {
         "name": att.get("name", None),
         "data_type": data_type
     }
+
+for dataType in dataTypes:
+    if "id" in dataType and "name" in dataType:
+        params = params.replace(dataType["id"], dataType["name"])
+
+for attribute in attributes:
+    if "id" in attribute and "name" in attribute:
+        params = params.replace(attribute["id"], attribute["name"])
+
