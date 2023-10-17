@@ -18,3 +18,20 @@ cluster = response['DBClusters'][0]
 cluster_status = cluster['Status']
 
 print(f'O status do cluster {cluster_identifier} é: {cluster_status}')
+
+columns = {}
+for att in attributes:
+    data_type = None
+
+    for d in dataTypes:
+        if d["id"] == att["dataTypeId"]:
+            data_type = d.get("name", None)
+            break
+
+    if data_type is None:
+        raise Exception(f"DataType not found for attribute {att['dataTypeId']}")
+
+    columns[att["id"]] = {
+        "name": att.get("name", None),
+        "data_type": data_type
+    }
