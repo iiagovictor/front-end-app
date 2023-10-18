@@ -51,14 +51,13 @@ import re
 def remove_dates_from_s3_path(s3_path):
     parts = s3_path.split('/')
     new_parts = []
-    
+
     for part in parts:
-        # Verifique se a parte atual não contém uma data
         if not re.search(r'\d{4}-\d{2}-\d{2}|\d{8}|\d{2}\/\d{2}\/\d{4}|\d{2}-\d{2}-\d{4}', part):
             new_parts.append(part)
-    
+
     new_path = '/'.join(new_parts)
-    return new_path
+    return '/'.join(new_parts)
 
 # Exemplo de uso
 s3_path = "s3://bucket/tabela/ano_dat_psst=2023/mes_dat_psst=09/dia_dat_psst=28"
