@@ -46,3 +46,21 @@ for attribute in attributes:
 
 g.V().has('vertex_property_key', 'vertex_property_value').sideEffect(both().drop()).drop().next()
 
+import re
+
+def remove_dates_from_s3_path(s3_path):
+    parts = s3_path.split('/')
+    new_parts = []
+    
+    for part in parts:
+        # Verifique se a parte atual não contém uma data
+        if not re.search(r'(\d{4}-\d{2}-\d{2}|\d{8}|\d{2}\/\d{2}\/\d{4}|\d{2}-\d{2}-\d{4})', part):
+            new_parts.append(part)
+    
+    new_path = '/'.join(new_parts)
+    return new_path
+
+# Exemplo de uso
+s3_path = "s3://bucket/prefix/tabela/01-06-2023"
+new_path = remove_dates_from_s3_path(s3_path)
+print(new_path)
