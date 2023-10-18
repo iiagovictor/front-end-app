@@ -44,7 +44,7 @@ for attribute in attributes:
     if "id" in attribute and "name" in attribute:
         params = params.replace(attribute["id"], attribute["name"])
 
-g.V().has('vertex_property_key', 'vertex_property_value').sideEffect(both().drop()).drop().next()
+g.V().hasLabel('seu_rotulo').has('chave', 'valor').sideEffect(both().drop()).drop().next()
 
 import re
 
