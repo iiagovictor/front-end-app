@@ -1,53 +1,20 @@
-import boto3
+  # Criar uma lista para armazenar as chaves 'table'
+  tabelas = []
 
-# Substitua 'your_region' pelo nome da sua região AWS (por exemplo, 'us-east-1' para a região Leste dos EUA).
-region = 'your_region'
+  # Iterar recursivamente sobre o DICT
+  def iterar(dict_data):
+    # Verificar se a chave atual é igual a 'table'
+    if dict_data.get("table"):
+      # Adicionar a chave à lista de resultados
+      tabelas.append(dict_data["table"])
 
-# Substitua 'your_neptune_cluster_identifier' pelo identificador do seu cluster Neptune.
-cluster_identifier = 'your_neptune_cluster_identifier'
+    # Iterar recursivamente sobre cada valor do DICT
+    for key, value in dict_data.items():
+      if isinstance(value, dict):
+        iterar(value)
 
-# Crie uma sessão do cliente para o Amazon Neptune
-session = boto3.Session(region_name=region)
-neptune_client = session.client('neptune')
+  # Chamar a função iterar recursivamente para processar o DICT
+  iterar(dict_data)
 
-# Use o método describe_db_clusters para obter informações sobre o cluster
-response = neptune_client.describe_db_clusters(DBClusterIdentifier=cluster_identifier)
-
-# Verifique o status do cluster
-cluster = response['DBClusters'][0]
-cluster_status = cluster['Status']
-
-print(f'O status do cluster {cluster_identifier} é: {cluster_status}')
-
-columns = {}
-for att in attributes:
-    data_type = None
-
-    for d in dataTypes:
-        if d["id"] == att["dataType"]:
-            data_type = d.get("name", None)
-            break
-
-    if data_type is None:
-        raise Exception(f"DataType not found for attribute {att['dataType']}")
-
-    columns[att["id"]] = {
-        "name": att.get("name", None),
-        "data_type": data_type
-    }
-
-for dataType in dataTypes:
-    if "id" in dataType and "name" in dataType:
-        params = params.replace(dataType["id"], dataType["name"])
-
-for attribute in attributes:
-    if "id" in attribute and "name" in attribute:
-        params = params.replace(attribute["id"], attribute["name"])
-
-g.V().hasLabel('seu_rotulo').has('chave', 'valor').sideEffect(both().drop()).drop().next()
-
-import re
-
-def is_valid_string(input_string):
-    return bool(re.match("^[0-9-_]+$", input_string))
-
+  # Retornar a lista de resultados
+  return tabelas
