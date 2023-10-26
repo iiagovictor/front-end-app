@@ -1,3 +1,14 @@
+def extrair_tabelas(dict_data):
+  """
+  Extrai todas as chaves 'table' de um DICT.
+
+  Args:
+    dict_data: O DICT a ser processado.
+
+  Returns:
+    Uma lista com todas as chaves 'table' encontradas.
+  """
+
   # Criar uma lista para armazenar as chaves 'table'
   tabelas = []
 
