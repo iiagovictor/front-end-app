@@ -1,0 +1,18 @@
+<script src="https://unpkg.com/mermaid@8.9.0/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+  });
+
+  var graph = {
+    "nodes": [
+      { "id": "A", "label": "A" },
+      { "id": "B", "label": "B" },
+    ],
+    "edges": [
+      { "source": "A", "target": "B", "highlight": "red" },
+    ],
+  };
+
+  mermaid.mermaidAPI.render("graph", graph);
+</script>
