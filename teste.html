@@ -1,18 +1,24 @@
-<script src="https://unpkg.com/mermaid@8.9.0/dist/mermaid.min.js"></script>
-<script>
-  mermaid.initialize({
-    startOnLoad: true,
-  });
+import { Component, OnInit } from '@angular/core';
+import { MermaidComponent } from 'mermaid-angular';
 
-  var graph = {
-    "nodes": [
-      { "id": "A", "label": "A" },
-      { "id": "B", "label": "B" },
-    ],
-    "edges": [
-      { "source": "A", "target": "B", "highlight": "red" },
-    ],
-  };
+@Component({
+  selector: 'my-app',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
 
-  mermaid.mermaidAPI.render("graph", graph);
-</script>
+  constructor(private readonly mermaid: MermaidComponent) {}
+
+  ngOnInit() {
+    this.mermaid.render('my-mermaid', `
+      graph TD
+        A[Nodo A] --> B[Nodo B]
+        A[Nodo A] --> C[Nodo C]
+        edge1[EDGE 1]
+        edge2[EDGE 2]
+        style edge1 fill:#FF0000
+    `);
+  }
+
+}
