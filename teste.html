@@ -1,24 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { MermaidComponent } from 'mermaid-angular';
-
-@Component({
-  selector: 'my-app',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent implements OnInit {
-
-  constructor(private readonly mermaid: MermaidComponent) {}
-
-  ngOnInit() {
-    this.mermaid.render('my-mermaid', `
-      graph TD
-        A[Nodo A] --> B[Nodo B]
-        A[Nodo A] --> C[Nodo C]
-        edge1[EDGE 1]
-        edge2[EDGE 2]
-        style edge1 fill:#FF0000
-    `);
-  }
-
-}
+<div id="mermaid-container" style="height: 500px; overflow: auto;">
+  <pre class="mermaid">
+    sequenceDiagram
+    Alice->>John: Hello John, how are you?
+    John-->>Alice: Great!
+  </pre>
+</div>
