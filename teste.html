@@ -1,7 +1,31 @@
-<div id="mermaid-container" style="height: 500px; overflow: auto;">
-  <pre class="mermaid">
-    sequenceDiagram
-    Alice->>John: Hello John, how are you?
-    John-->>Alice: Great!
-  </pre>
-</div>
+import { Component, OnInit } from '@angular/core';
+import mermaid from 'mermaid';
+import * as d3 from 'd3';
+
+@Component({
+  selector: 'my-app',
+  templateUrl: './app.component.html',
+  styleUrls: [ './app.component.css' ]
+})
+export class AppComponent implements OnInit  {
+  ngOnInit(): void {
+    mermaid.initialize({
+      securityLevel: 'loose'
+    });
+    mermaid.init();
+
+    const svg = d3.select('.graph-container pre.mermaid').select('svg');
+
+    // Add zoom control
+    const zoom = d3.zoom().on('zoom', () => {
+      svg.attr('transform', d3.zoomIdentity().scale(zoom.scale()));
+    });
+    svg.call(zoom);
+
+    // Add pan control
+    const pan = d3.pan().on('pan', () => {
+      svg.attr('transform', d3.zoomIdentity().translate(pan.x, pan.y));
+    });
+    svg.call(pan);
+  }
+}
